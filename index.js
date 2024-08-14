@@ -17,7 +17,7 @@ app.use(userRoutes);
 app.use(exerciseRoutes);
 
 app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/views/index.html");
+  res.sendFile(process.cwd() + "/views/index.html");
 });
 
 const listener = app.listen(process.env.PORT || 3000, () => {

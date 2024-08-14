@@ -25,10 +25,10 @@ export const addExercise = async (req, res) => {
       username: user.username,
       description: exercise.description,
       duration: exercise.duration,
-      date: new Date(date).toDateString(exercise.date),
+      date: exercise.date,
     });
   } catch (err) {
-    res.status(500).json({ error: "Failed to add exercise" });
+    res.status(500).json({ error: `Failed to add exercise: ${err.message}` });
   }
 };
 
@@ -45,9 +45,9 @@ export const getExerciseLog = async (req, res) => {
     const logs = await Exercise.getByUserId(_id, from, to, limit);
     res.json({
       username: user.username,
-      count: logs.length,
+      count: logs.count,
       userId: user.id,
-      logs,
+      logs: logs.log,
     });
   } catch (err) {
     res.status(500).json({ error: "Failed to retrieve logs" });

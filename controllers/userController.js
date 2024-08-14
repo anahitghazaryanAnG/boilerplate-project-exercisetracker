@@ -11,7 +11,7 @@ export const createUser = async (req, res) => {
     const user = await User.create(username);
     res.json({ username: user.username, _id: user.id });
   } catch (err) {
-    res.status(500).json({ error: "Failed to create user" });
+    res.status(500).json({ error: `Failed to create user: ${err.message}` });
   }
 };
 

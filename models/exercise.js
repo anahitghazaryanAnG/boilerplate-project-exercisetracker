@@ -3,10 +3,15 @@ import isValidDate from "../helpers/dateValidation.js";
 
 export class Exercise {
   static async create(userId, description, duration, date) {
-    const db = await connectDB();
+    if (parseInt(duration) <= 0) {
+      throw new Error("Duration must be a positive number.");
+    }
+
     const exerciseDate = isValidDate(date)
       ? date
       : new Date().toISOString().split("T")[0];
+
+    const db = await connectDB();
     const result = await db.run(
       `INSERT INTO exercises (userId, description, duration, date) VALUES (?, ?, ?, ?)`,
       [userId, description, parseInt(duration), exerciseDate]
@@ -37,11 +42,19 @@ export class Exercise {
 
     query += ` ORDER BY date ASC`;
 
+    const totalCountQuery = `SELECT COUNT(*) as count FROM exercises WHERE userId = ?`;
+    const totalCount = await db.get(totalCountQuery, [userId]);
+
     if (limit) {
       query += ` LIMIT ?`;
       params.push(parseInt(limit));
     }
 
-    return await db.all(query, params);
+    const log = await db.all(query, params);
+
+    return {
+      count: totalCount.count,
+      log,
+    };
   }
 }

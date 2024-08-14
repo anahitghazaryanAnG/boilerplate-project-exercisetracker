@@ -27,30 +27,33 @@ export class Exercise {
 
   static async getByUserId(userId, from, to, limit) {
     const db = await connectDB();
-    let query = `SELECT description, duration, date FROM exercises WHERE userId = ?`;
+
+    let countQuery = `SELECT COUNT(*) as count FROM exercises WHERE userId = ?`;
+    let dataQuery = `SELECT description, duration, date FROM exercises WHERE userId = ?`;
     const params = [userId];
 
     if (from) {
-      query += ` AND date >= ?`;
+      countQuery += ` AND date >= ?`;
+      dataQuery += ` AND date >= ?`;
       params.push(from);
     }
 
     if (to) {
-      query += ` AND date <= ?`;
+      countQuery += ` AND date <= ?`;
+      dataQuery += ` AND date <= ?`;
       params.push(to);
     }
 
-    query += ` ORDER BY date ASC`;
+    dataQuery += ` ORDER BY date ASC`;
 
-    const totalCountQuery = `SELECT COUNT(*) as count FROM exercises WHERE userId = ?`;
-    const totalCount = await db.get(totalCountQuery, [userId]);
+    const totalCount = await db.get(countQuery, params);
 
     if (limit) {
-      query += ` LIMIT ?`;
+      dataQuery += ` LIMIT ?`;
       params.push(parseInt(limit));
     }
 
-    const log = await db.all(query, params);
+    const log = await db.all(dataQuery, params);
 
     return {
       count: totalCount.count,
